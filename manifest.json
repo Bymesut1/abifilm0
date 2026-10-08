@@ -1,0 +1,14 @@
+{
+  "id": "com.mavi5.wfilmizle",
+  "name": "Wfilmizle Provider",
+  "version": "1.0.2",
+  "description": "Wfilmizle Türkçe film ve TMDB destekli ham akış sağlayıcısı.",
+  "author": "mavi5",
+  "type": "video_provider",
+  "language": "tr",
+  "permissions": [
+    "https://www.wfilmizle.cam/*",
+    "https://api.themoviedb.org/*",
+    "https://*/*"
+  ]
+}
