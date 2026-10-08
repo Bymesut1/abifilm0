@@ -17,17 +17,12 @@ async function search(query) {
             const yearMatch = box.match(/<div class="film-yil">[\s\S]*?(\d{4})/);
             
             if (linkMatch && titleMatch) {
-                const href = linkMatch[1];
-                const rawTitle = titleMatch[1].replace(" izle", "").trim();
-                const poster = imgMatch ? imgMatch[1] : null;
-                const year = yearMatch ? parseInt(yearMatch[1], 10) : null;
-                
                 results.push({
-                    id: href,
-                    title: rawTitle,
-                    url: href,
-                    poster: poster,
-                    year: year,
+                    id: linkMatch[1],
+                    title: titleMatch[1].replace(" izle", "").trim(),
+                    url: linkMatch[1],
+                    poster: imgMatch ? imgMatch[1] : null,
+                    year: yearMatch ? parseInt(yearMatch[1], 10) : null,
                     type: "movie"
                 });
             }
@@ -39,65 +34,46 @@ async function search(query) {
 }
 
 async function getStream(url) {
-    // Asla boş dönmeyecek ve eklentinin çökmesini engellecek güvenli dizi
-    const streams = [];
-    
     try {
         const response = await fetch(url);
-        if (!response.ok) {
-            // Sayfa açılmazsa bile eklenti adı kaybolmasın diye yedek link veriyoruz
-            return [{ title: "Wfilmizle - Alternatif Kaynak", url: url }];
-        }
-        
+        if (!response.ok) return [{ title: "Wfilmizle - Alternatif", url: url }];
         const html = await response.text();
+        
         const iframeMatch = html.match(/<div class="video-container[^>]*>[\s\S]*?<iframe[^>]+(?:data-src|src)="([^"]+)"/i);
+        if (!iframeMatch) return [{ title: "Wfilmizle - Sayfa", url: url }];
         
-        if (iframeMatch) {
-            let iframeUrl = iframeMatch[1];
-            if (iframeUrl.startsWith("//")) {
-                iframeUrl = "https:" + iframeUrl;
-            }
-            
-            try {
-                const subRes = await fetch(iframeUrl);
-                if (subRes.ok) {
-                    const subHtml = await subRes.text();
-                    const streamMatch = subHtml.match(/(https:\/\/[^\s"'<>]+\.(?:m3u8|mp4)[^\s"'<>]*)/i);
-                    if (streamMatch) {
-                        const streamUrl = streamMatch[1];
-                        streams.push({
-                            title: "Wfilmizle - Doğrudan Akış (1080p)",
-                            url: streamUrl,
-                            type: streamUrl.includes(".m3u8") ? "hls" : "mp4"
-                        });
-                    }
+        let iframeUrl = iframeMatch[1];
+        if (iframeUrl.startsWith("//")) {
+            iframeUrl = "https:" + iframeUrl;
+        }
+        
+        try {
+            const subRes = await fetch(iframeUrl);
+            if (subRes.ok) {
+                const subHtml = await subRes.text();
+                const streamMatch = subHtml.match(/(https:\/\/[^\s"'<>]+\.(?:m3u8|mp4)[^\s"'<>]*)/i);
+                if (streamMatch) {
+                    const streamUrl = streamMatch[1];
+                    return [{
+                        title: "Wfilmizle - Doğrudan Akış (1080p)",
+                        url: streamUrl,
+                        type: streamUrl.includes(".m3u8") ? "hls" : "mp4"
+                    }];
                 }
-            } catch (subErr) {
-                // Alt kaynak çekilemese bile devam et
             }
-            
-            // Eğer doğrudan video çözülemediyse iframe adresini ekle ki kaynak boş kalmasın
-            streams.push({
-                title: "Wfilmizle - Web Oynatıcı",
-                url: iframeUrl
-            });
-        }
+        } catch (subErr) {}
         
-        // Hiçbir şey bulunamazsa en azından ana film sayfasını kaynak olarak göster
-        if (streams.length === 0) {
-            streams.push({
-                title: "Wfilmizle - Sayfa Bağlantısı",
-                url: url
-            });
-        }
-        
-        return streams;
-        
-    } catch (err) {
-        // En kötü senaryoda bile uygulamanın ve eklentinin çökmesini engeller
         return [{
-            title: "Wfilmizle - Güvenli Bağlantı",
-            url: url
+            title: "Wfilmizle - Web Oynatıcı",
+            url: iframeUrl
         }];
+    } catch (err) {
+        return [{ title: "Wfilmizle - Güvenli Bağlantı", url: url }];
     }
 }
+
+// UYGULAMANIN FONKSİYONLARI GÖREBİLMESİ İÇİN ŞART OLAN DIŞA AKTARMA (EXPORT)
+module.exports = {
+    search,
+    getStream
+};
