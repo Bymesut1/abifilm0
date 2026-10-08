@@ -13,7 +13,7 @@
       "author": "mavi5",
       "type": "video_provider",
       "language": "tr",
-      "url": "https://raw.githubusercontent.com/Bymesut1/mavi5/main/providers.js",
+      "url": "https://raw.githubusercontent.com/Bymesut1/mavi5/main/providers/providers.js",
       "permissions": [
         "https://www.wfilmizle.cam/*",
         "https://api.themoviedb.org/*",
