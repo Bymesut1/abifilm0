@@ -182,7 +182,7 @@ function resolvePlayer(playerUrl) {
     }).then(function (list) {
         var seen = {}, out = [];
         list.forEach(function (u) { if (u && !seen[u]) { seen[u] = 1; out.push({ url: u, referer: playerUrl, origin: org }); } });
-        return out;
+        return out.slice(0, 1);
     });
 }
 
