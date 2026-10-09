@@ -1,12 +1,12 @@
 {
   "name": "abifilm0",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scrapers": [
     {
       "id": "abifilm0",
       "name": "AbiFilm0 (wfilmizle)",
       "description": "wfilmizle.cam Türkçe dublaj/altyazı filmler",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "filename": "providers/abifilm0.js",
       "supportedTypes": ["movie"],
       "enabled": true
